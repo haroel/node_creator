@@ -1,0 +1,27 @@
+package UserProto;
+
+message UserModel
+{
+    optional string uuid = 1;
+    optional bool showVote = 2;
+}
+
+message UserInfo
+{
+    optional string coco_id=1;
+    optional string ip = 2;
+    optional uint32 time=3;
+    optional string uuid=4;
+}
+
+message UserInfoList
+{
+    repeated UserInfo list=1;
+    optional string clientChoose=2;
+}
+// 协议返回数据
+message UserResponse
+{
+    optional UserModel userModel = 1;
+    optional UserInfoList userList = 2;
+}
