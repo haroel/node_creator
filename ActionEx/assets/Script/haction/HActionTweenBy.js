@@ -1,9 +1,11 @@
 /**
- * ihowe@outlook.com
- * author by haroel
- * Created by howe on 2017/3/22.
+ *
+ * Tell me what the fuck do!
+ *
+ * Author      : hhe
+ * Create Time :2017/4/11
  */
-let HActionTween = cc.Class({
+let HActionTweenBy = cc.Class({
     extends : require("HActionInterval"),
     ctor:function () {
         this._intialAttrList = null;
@@ -28,7 +30,6 @@ let HActionTween = cc.Class({
     update:function (rate)
     {
         this._super(rate);
-
         let vars = this._vars;
         let node = this.getNode();
         let progress = this.getProgress();
@@ -36,29 +37,29 @@ let HActionTween = cc.Class({
         for (let key in pList)
         {
             let _o = pList[key];
-            node[key] = _o + (vars[key] - _o) * progress;
+            node[key] = _o + vars[key] * progress;
         }
     },
     /* cloneSelf 不复制方法 */
     cloneSelf:function ()
     {
-        let act = new HActionTween();
+        let act = new HActionTweenBy();
         act.init( this.getDuration(), this.getVars() );
         act.easing(this.easingFunc);
         return act;
     },
-    destroy:function ()
+    $destroy:function ()
     {
         this._intialAttrList = null;
         this._super();
     }
 });
 
-HActionTween.create = function ( duration,vars)
+HActionTweenBy.create = function ( duration,vars)
 {
-    let tween = new HActionTween();
+    let tween = new HActionTweenBy();
     tween.init(duration,vars);
     return tween;
 };
 
-module.exports = HActionTween;
+module.exports = HActionTweenBy;

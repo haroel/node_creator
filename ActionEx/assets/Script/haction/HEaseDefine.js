@@ -7,8 +7,6 @@
  *
  * 缓动定义文件, 可以扩展该文件以获得更多的缓动类型算法
  *
- * 目前只提供了 EaseElasticIn  EaseElasticOut backEaseOut
- *
  * HAction默认的缓动只能处理单个参数的缓动
  * 如果要处理多参数缓动(比如bezier动画传入控制点参数),
  * 请在继承HActionInterval之后的update函数里计算处理, 不要调用this._super(dt);
@@ -70,3 +68,15 @@ ease.backEaseOut= function (  )
     }
 };
 
+ease.easeInOut = function ( _rate) {
+    let rate = _rate;
+    return function (_time) {
+        let time = 2 * _time;
+        if (time < 1) {
+            return 0.5 * Math.pow(time, rate);
+        }
+        else {
+            return (1.0 - 0.5 * Math.pow(2 - time, rate));
+        }
+    }
+}

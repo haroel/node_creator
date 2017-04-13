@@ -5,6 +5,7 @@
  *
  * 同步执行
  */
+let utils = require("HUtil");
 let HActionSpawn =  cc.Class({
     extends : require("HAction"),
     ctor:function ()
@@ -32,10 +33,9 @@ let HActionSpawn =  cc.Class({
             this._actions.push( act );
         }
     },
-
-    update:function (rate)
+    $update:function (dt)
     {
-        this._super(rate);
+        this._super(dt);
         let len = this._actions.length;
         if (len < 1)
         {
@@ -46,23 +46,33 @@ let HActionSpawn =  cc.Class({
         for (let i= 0;i<len;i++)
         {
             let act = this._actions[i];
-            if (!act.getNode())
+            if (act)
             {
-                let _i = i;
-                act.startWithTarget(this._actionComponent);
-                act.$setFinishCallback( function ( action,nextAction)
+                if (!act.getNode())
+                {
+                    act.startWithTarget(this._actionComponent);
+                    act.$setFinishCallback( function ( action,nextAction)
                     {
-                        if (nextAction)
+                        for (let j=0;j< that._actions.length;j++)
                         {
-                            that._actions[_i] = nextAction;
-                        }else
-                        {
-                            that._actions.splice(_i,1);
+                            let _action_ = that._actions[j];
+                            if (_action_["$uuid"] === action["$uuid"])
+                            {
+                                if (nextAction)
+                                {
+                                    that._actions[j] = nextAction;
+                                }else
+                                {
+                                    that._actions.splice(j,1);
+                                }
+                                break;
+                            }
                         }
-                        action.destroy();
+                        action.$invalid();
                     });
+                }
+                act["_$update"](dt);
             }
-            act["_$update"](dt);
         }
     },
     cloneSelf:function ()
@@ -70,26 +80,32 @@ let HActionSpawn =  cc.Class({
         let spawn = new HActionSpawn();
         spawn.init(this.getVars());
         let list = [];
-        let len = this._actions.length;
-        for (let i= 0;i<len;i++) {
-            let act = this._actions[i];
-            list.push( act.clone() );
-        }
+        this._actions.forEach(function (action)
+        {
+            list.push(action);
+        });
         spawn.pushAction(list,false);
+        list = null;
         return spawn;
     },
-    destroy:function () {
-        for (let i=0;i<this._actions.length;i++)
+    $invalid:function()
+    {
+        this._actions.forEach(function (action)
         {
-            utils.destroyAction(this._actions[i]);
-        }
+            utils.invalidActionAndNext(action);
+        });
+        this._actions = null;
+        this._super();
+    },
+    $destroy:function () {
         this._actions = null;
         this._super();
     }
 });
 
-HActionSpawn.create = function ( actions ) {
+HActionSpawn.create = function ( actions ,vars /* null */) {
     let act = new HActionSpawn();
+    act.init(vars);
     act.pushAction( actions );
     return act;
 };

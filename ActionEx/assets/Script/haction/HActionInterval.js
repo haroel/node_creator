@@ -5,7 +5,7 @@
  *
  * HActionInterval是基于时间调度的动作基类
  */
-require("HEaseDefine");
+
 let HActionInterval = cc.Class({
     extends : require("HAction"),
     ctor:function ()
@@ -55,11 +55,6 @@ let HActionInterval = cc.Class({
         {
             this._progress = this._currentTime/this._totalTime;
             this.update(this._progress);
-            let vars = this._vars;
-            if ( vars["onUpdate"])
-            {
-                vars["onUpdate"](this);
-            }
         }
     },
     /*
@@ -67,10 +62,11 @@ let HActionInterval = cc.Class({
     * */
     update:function (rate)
     {
-        if (this.easingFunc && this._progress < 1.0)
+        if (this.easingFunc)
         {
-            this._progress = this.easingFunc( rate )
+            this._progress = this.easingFunc( this._progress )
         }
+        this._super(this._progress);
         //TODO What you want to do next;
 
     },
@@ -104,6 +100,7 @@ let HActionInterval = cc.Class({
         {
             this.easingFunc = easeFunc;
         }
+        return this;
     },
     /* cloneSelf 不复制方法 */
     cloneSelf:function ()
@@ -116,7 +113,7 @@ let HActionInterval = cc.Class({
     /*
      * 仅继承重写,不可外部调用,该方法由ActionComponent自动调用!!!!!
      * */
-    destroy:function ()
+    $destroy:function ()
     {
         this.easingFunc = null;
         this._super();

@@ -7,6 +7,11 @@
  * 不允许外部对其直接访问和修改!
  */
 let utils = require("HUtil");
+
+let _destroyFunc = function (action)
+{
+    action.$destroy();
+};
 module.exports = cc.Class({
     extends: cc.Component,
     properties: {
@@ -20,6 +25,9 @@ module.exports = cc.Class({
     {
         this._targetNode = targetNode;
         this.__hActions = [];
+        this._isPaused = false;
+        this._tempInvalidIds = {};
+        this._invalidActionList = [];
     },
 
     // use this for initialization
@@ -50,8 +58,9 @@ module.exports = cc.Class({
             let _action = this.__hActions[i];
             if (_action["$uuid"] === uuid)
             {
-                utils.destroyAction(_action);
-                this.__hActions.splice(i,1);
+                utils.invalidActionAndNext(_action);
+                // this.__hActions.splice(i,1);
+                this._tempInvalidIds[_action["$uuid"]] = 1;
                 return true;
             }else
             {
@@ -71,46 +80,31 @@ module.exports = cc.Class({
         }
         return false;
     },
-
-    linkAction:function ( target, nextAction )
+    removeAllActions:function ()
     {
-        if (!utils.isHAction(nextAction))
+        let len = this.__hActions.length;
+        for (let i= 0;i < len;i++)
         {
-            throw new Error("Error, action 必须是HAction类或其子类");
+            this._tempInvalidIds[this.__hActions[i]["$uuid"]] = 1;
+            utils.invalidActionAndNext( this.__hActions[i] );
         }
-        target.setNextAction(nextAction);
     },
 
-    parallelAction:function (target , actions)
-    {
-        let Spawn = require("HActionSpawn");
-        let act = Spawn.create( actions );
-        this.linkAction( target , act);
-        return act;
+    getActionByTag:function (tag) {
+        let len = this.__hActions.length;
+        for (let i= 0;i < len;i++)
+        {
+            if (this.__hActions[i].tag === tag)
+            {
+                return this.__hActions[i];
+            }
+        }
     },
-
-    /*翻转*/
-    reverseActionFromTarget:function ( target  )
-    {
-        if (!utils.isHAction(target))
-        {
-            // 必须是HAction的类或子类才可进一步操作
-            throw new Error("Error, action 必须是HAction类或其子类");
-        }
-        let arr = [];
-        arr.push( target.clone() );
-        let nextAct = target.getNextAction();
-        while(nextAct)
-        {
-            arr.push(nextAct.clone());
-            nextAct = nextAct.getNextAction();
-        }
-        let _target = arr.pop();
-        while(arr.length > 0)
-        {
-            _target.setNextAction(arr.pop());
-        }
-        return _target;
+    pause:function () {
+        this._isPaused = false;
+    },
+    resume:function () {
+        this._isPaused = true;
     },
 
     playComplete:function ( hAction )
@@ -128,33 +122,54 @@ module.exports = cc.Class({
                     this.__hActions[i] = nexthAction;
                 }else
                 {
-                    this.__hActions.splice(i,1);
+                    this._tempInvalidIds[hAction["$uuid"]] = 1; // 标记该action要删除掉
                 }
-                hAction.destroy();
+                hAction.$invalid();
                 break;
             }
         }
     },
-
+    addActionToInvalidList:function (action)
+    {
+        this._invalidActionList.push(action);
+    },
     // called every frame
     update: function (dt)
     {
-        let len = this.__hActions.length;
-        for (let i= 0;i < len;i++)
+        if (this._invalidActionList.length > 0)
         {
-            this.__hActions[i]["_$update"](dt);
+            this._invalidActionList.forEach(_destroyFunc);
+            this._invalidActionList = [];
         }
+        let arr = this.__hActions;
+        for(let i=0,flag=true,len=arr.length;i<len;flag ? i++ : i){
+
+            if( arr[i] && this._tempInvalidIds[ arr[i]["$uuid"] ] ){
+                arr.splice(i,1);
+                flag = false;
+            } else {
+                flag = true;
+            }
+        }
+        this._tempInvalidIds = {};
+        if (this._isPaused)
+        {
+            return;
+        }
+        arr.forEach(function (action) {
+            action["_$update"](dt);
+        });
     },
 
     onDestroy:function ()
     {
-        // 销毁所有的action节点
-        let len = this.__hActions.length;
-        for (let i= 0;i < len;i++)
-        {
-            utils.destroyAction( this.__hActions[i] );
-        }
-        this._targetNode = null;
+        this.__hActions.forEach(_destroyFunc);
         this.__hActions = null;
+
+        this._invalidActionList.forEach(_destroyFunc);
+        this._invalidActionList = null;
+
+        this._tempInvalidIds = null;
+        this._targetNode = null;
     }
 });

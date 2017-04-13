@@ -2,7 +2,7 @@
  * ihowe@outlook.com
  * author by haroel
  * Created by howe on 2017/3/17.
- * HAction核心基类,请不要直接实例化使用
+ * HAction核心基类
  */
 require("HNodeEx");
 let utils = require("HUtil");
@@ -18,21 +18,48 @@ let UUID_GENERATOR = (function ()
     }
 })();
 
+//0 表示初始化,1表示运行,2表示暂停,3表示停止,4表示销毁
+let STATE = {
+    INITIAL:0,
+    RUNNING:1,
+    PAUSED:2,
+    STOPPED:3,
+    DEAD:4
+};
+// HAction核心基类,请不要直接实例化使用
 let HAction = cc.Class({
     ctor:function () {
         this.$uuid = UUID_GENERATOR();
         this._delay = 0;
+        this._tag = 0;
+
+        this._state = STATE.INITIAL;
 
         this._finishCallback = null;
         this._actionComponent = null;
 
         this._vars = new HVars();
     },
+    isRunning:function () {
+        return this._state === STATE.RUNNING;
+    },
 
     getVars:function ()
     {
         return this._vars;
     },
+    /*
+     *  获取HAction作用的cc.Node对象
+     * */
+    getNode:function ()
+    {
+        if (this._actionComponent)
+        {
+            return this._actionComponent.getTargetNode();
+        }
+        return null;
+    },
+
     getNextAction :function () {
         return this["__nextAction"];
     },
@@ -58,25 +85,15 @@ let HAction = cc.Class({
             }
             ++i;
         }
-        utils.destroyAction(nextAct);
+        utils.invalidActionAndNext(nextAct);
         preAction["__nextAction"] = action;
         return action;
     },
     removeNextAction:function () {
-        utils.destroyAction( this["__nextAction"] );
+        utils.invalidActionAndNext( this["__nextAction"] );
         this["__nextAction"] = null;
     },
-    /*
-     *  获取HAction作用的cc.Node对象
-     * */
-    getNode:function ()
-    {
-        if (this._actionComponent)
-        {
-            return this._actionComponent.getTargetNode();
-        }
-        return null;
-    },
+
     /*
      * 初始化 (可重写改方法)
      * */
@@ -94,7 +111,8 @@ let HAction = cc.Class({
     {
         if (this._actionComponent)
         {
-            throw new Error("Error, HAction Had been setted! ");
+            throw new Error("Error, HAction Had been added! ");
+            return;
         }
         this._actionComponent = component;
         this.playAction();
@@ -103,6 +121,7 @@ let HAction = cc.Class({
     /* 具体实现请继承 */
     playAction:function ()
     {
+        this._state = STATE.RUNNING;
         this._delay = this._vars["delay"];
     },
     /*
@@ -114,6 +133,10 @@ let HAction = cc.Class({
      * */
     _$update:function (dt)
     {
+        if (this._state !== STATE.RUNNING)
+        {
+            return;
+        }
         // 处理延时调用
         if (this._delay > 0)
         {
@@ -121,10 +144,17 @@ let HAction = cc.Class({
             return;
         }
         this.$update(dt);
+
+        let vars = this._vars;
+        if ( vars && vars["onUpdate"] )
+        {
+            vars["onUpdate"](this);
+        }
     },
     $update:function(dt)
     {
         this.update(0);
+
     },
     /*
      * 请重写改方法以实现更多行为
@@ -134,7 +164,9 @@ let HAction = cc.Class({
     update:function (rate)
     {
         //TODO What you want to do;
+
     },
+
     /*
     * 子类动作结束时请调用该方法
     * */
@@ -150,20 +182,34 @@ let HAction = cc.Class({
         {
             this.playAction();  // 重置状态
             this.repeat( count - 1 );
-            return;
         }else {
-
+            this._state = STATE.STOPPED;
             if ( vars["onStoped"] )
             {
                 vars["onStoped"](this);
             }
+            if (this._finishCallback)
+            {
+                this._finishCallback(this,this.getNextAction());
+            }
+            if (this._actionComponent)
+            {
+                // 注意:playComplete不一定会调用成功,因为某些action是由spawn来维护
+                this._actionComponent.playComplete(this);
+            }
         }
-        if (this._finishCallback)
-        {
-            this._finishCallback(this,this.getNextAction());
-        }
-        // 注意:playComplete不一定会调用成功,因为某些action是由spawn来维护
-        this._actionComponent.playComplete(this);
+    },
+    $setFinishCallback:function (callback) {
+        this._finishCallback = callback;
+    },
+
+    pause:function ()
+    {
+        this._state = STATE.PAUSED;
+    },
+    resume:function ()
+    {
+        this._state = STATE.RUNNING;
     },
     /*
     * then式调用链,可以用链式方法来处理,
@@ -173,12 +219,12 @@ let HAction = cc.Class({
     {
         if (arguments.length === 1)
         {
-            return this.setNextAction( arguments[0]);
+            utils.linkAction(this,arguments[0]);
         }else if (arguments.length > 1)
         {
-            return this._actionComponent.parallelAction(this,arguments);
+            utils.parallelAction(this,arguments);
         }
-        return null;
+        return this;
     },
     /*
      * 完备克隆action
@@ -239,15 +285,24 @@ let HAction = cc.Class({
         this._vars["onStoped"] = func;
         return this;
     },
-    $setFinishCallback:function (callback) {
-        this._finishCallback = callback;
-        return this;
+
+    $invalid:function()
+    {
+        if (this._actionComponent)
+        {
+            this._actionComponent.addActionToInvalidList(this);
+        }else
+        {
+            this.$destroy();
+        }
     },
     /*
      * 仅继承重写,不可外部调用!!!!!
      * */
-    destroy:function ()
+    $destroy:function ()
     {
+        // cc.log("销毁" + this.$uuid);
+        this._state = STATE.DEAD;
         this._vars = null;
         this["__nextAction"] = null;
         this._finishCallback = null;

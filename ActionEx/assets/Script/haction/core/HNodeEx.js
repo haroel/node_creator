@@ -29,11 +29,36 @@ NodePrototype.$removeAction = function ( HAction )
     }
 };
 
-NodePrototype.$stopImmediately = function ( HAction )
+
+NodePrototype.$removeAllActions = function () {
+    let component = this.getComponent(HActionComponent);
+    if (component)
+    {
+        component.removeAllActions();
+    }
+};
+
+NodePrototype.$pauseActions = function () {
+    let component = this.getComponent(HActionComponent);
+    if (component)
+    {
+        component.pause();
+    }
+};
+
+NodePrototype.$resumeActions = function () {
+    let component = this.getComponent(HActionComponent);
+    if (component)
+    {
+        component.resume();
+    }
+};
+NodePrototype.$getActionByTag = function ( tag )
 {
     let component = this.getComponent(HActionComponent);
     if (component)
     {
-        component.stopImmediately(HAction);
+        return component.getActionByTag(tag);
     }
+    return null;
 };
