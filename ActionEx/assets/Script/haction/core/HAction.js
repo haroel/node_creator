@@ -40,6 +40,9 @@ let HAction = cc.Class({
 
         this._vars = new HVars();
     },
+    getState :function () {
+        return this._state;
+    },
     isRunning:function () {
         return this._state === STATE.RUNNING;
     },

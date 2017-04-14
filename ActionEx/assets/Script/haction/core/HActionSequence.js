@@ -32,40 +32,52 @@ let HActionSequence =  cc.Class({
             this._actions.push( act );
         }
     },
+    playAction:function ()
+    {
+        this._super();
+        // 重置所有Action的状态
+        let len = this._actions.length;
+        for (let i= 0;i < len;i++)
+        {
+            let act = this._actions[i];
+            while (act)
+            {
+                act.playAction();
+                act = act.getNextAction();
+            }
+        }
+    },
 
     $update:function (dt)
     {
         this._super(dt);
-        if (!this._actions)
-        {
-            return;
-        }
+        let flag = true;
         let len = this._actions.length;
-        if (len < 1)
+        for (let i= 0;i<len;i++)
+        {
+            let act = this._actions[i];
+            while (act)
+            {
+                if (!act.getNode())
+                {
+                    act.startWithTarget(this._actionComponent);
+                }
+                if (act.isRunning())
+                {
+                    act["_$update"](dt);
+                    flag = false;
+                    break;
+                }
+                act = act.getNextAction();
+            }
+            if (!flag)
+            {
+                break;
+            }
+        }
+        if (flag)
         {
             this.$actionComplete();
-            return;
-        }
-        let that = this;
-        let act = this._actions[0];
-        if (act)
-        {
-            if (!act.getNode())
-            {
-                act.startWithTarget(this._actionComponent);
-                act.$setFinishCallback( function ( action,nextAction)
-                {
-                    if (nextAction)
-                    {
-                        that._actions[0] = nextAction;
-                    }else
-                    {
-                        that._actions.shift();
-                    }
-                    action.$invalid();
-                });
-            }
-            act["_$update"](dt);
         }
     },
     cloneSelf:function ()

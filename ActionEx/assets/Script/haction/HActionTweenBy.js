@@ -1,31 +1,11 @@
 /**
- *
- * Tell me what the fuck do!
- *
- * Author      : hhe
- * Create Time :2017/4/11
+ * ihowe@outlook.com
+ * author by haroel
+ * Created by howe on 2017/3/22.
  */
 let HActionTweenBy = cc.Class({
-    extends : require("HActionInterval"),
+    extends : require("HActionTweenBase"),
     ctor:function () {
-        this._intialAttrList = null;
-    },
-    startWithTarget:function ( component  )
-    {
-        this._super(component);
-        this._intialAttrList = {};
-        let _node = this.getNode();
-        for (var key in this._vars)
-        {
-            if ( _node[key] )
-            {
-                let _o = typeof _node[key];
-                if ( _o === 'number')
-                {
-                    this._intialAttrList[key] = _node[key];
-                }
-            }
-        }
     },
     update:function (rate)
     {
@@ -47,11 +27,6 @@ let HActionTweenBy = cc.Class({
         act.init( this.getDuration(), this.getVars() );
         act.easing(this.easingFunc);
         return act;
-    },
-    $destroy:function ()
-    {
-        this._intialAttrList = null;
-        this._super();
     }
 });
 

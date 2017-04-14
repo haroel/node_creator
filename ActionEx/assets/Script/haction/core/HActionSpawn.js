@@ -33,46 +33,46 @@ let HActionSpawn =  cc.Class({
             this._actions.push( act );
         }
     },
+    playAction:function () {
+        this._super();
+        // 重置所有Action的状态
+        let len = this._actions.length;
+        for (let i= 0;i < len;i++)
+        {
+            let act = this._actions[i];
+            while (act)
+            {
+                act.playAction();
+                act = act.getNextAction();
+            }
+        }
+    },
     $update:function (dt)
     {
         this._super(dt);
+        let flag = true;
         let len = this._actions.length;
-        if (len < 1)
-        {
-            this.$actionComplete();
-            return;
-        }
-        let that = this;
         for (let i= 0;i<len;i++)
         {
             let act = this._actions[i];
-            if (act)
+            while (act)
             {
                 if (!act.getNode())
                 {
                     act.startWithTarget(this._actionComponent);
-                    act.$setFinishCallback( function ( action,nextAction)
-                    {
-                        for (let j=0;j< that._actions.length;j++)
-                        {
-                            let _action_ = that._actions[j];
-                            if (_action_["$uuid"] === action["$uuid"])
-                            {
-                                if (nextAction)
-                                {
-                                    that._actions[j] = nextAction;
-                                }else
-                                {
-                                    that._actions.splice(j,1);
-                                }
-                                break;
-                            }
-                        }
-                        action.$invalid();
-                    });
                 }
-                act["_$update"](dt);
+                if (act.isRunning())
+                {
+                    act["_$update"](dt);
+                    flag = false;
+                    break;
+                }
+                act = act.getNextAction();
             }
+        }
+        if (flag)
+        {
+            this.$actionComplete();
         }
     },
     cloneSelf:function ()
