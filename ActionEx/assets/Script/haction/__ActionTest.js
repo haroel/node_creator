@@ -21,19 +21,19 @@ cc.Class({
         let hh = require("HH");
 
         // let act1 = hh.moveBy(2.0,cc.v2(200,200),{delay:4.0}).then(hh.scaleTo(0.4,{scaleX:3.0,scaleY:2.0}));
-        // this.node1.$runAction( act1);
+        // this.node1.RunAction( act1);
         //
         // let act2 = act1.clone();
-        // this.node2.$runAction( act2);
+        // this.node2.RunAction( act2);
 
         // let act3 = hh.spawn( [hh.moveBy(2.0,cc.v2(200,0),{delay:0.5}), hh.scaleTo(3.3,{scaleX:3.0,scaleY:2.0})]  );
-        // this.node3.$runAction( act3.repeat(7));
+        // this.node3.RunAction( act3.repeat(7));
 
         let act4 = hh.sequence( [hh.moveBy(2.0,cc.v2(200,0),{delay:1.0}), hh.scaleTo(3.3,{scaleX:3.0,scaleY:2.0}) ]  );
-        this.node4.$runAction( act4.repeat(5) );
+        this.node4.RunAction( act4.repeat(5) );
         //
         let act5 = hh.sequence( [hh.moveBy(2.0,cc.v2(200,0),{delay:1.0}), hh.tween(2.2,{width:200,height:33}) ]  ).clone();
-        this.node5.$runAction( act5 );
+        this.node5.RunAction( act5 );
     }
 
 });

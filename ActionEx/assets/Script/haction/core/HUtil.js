@@ -10,11 +10,11 @@ moduleObj.invalidActionAndNext = function (action)
 {
     if (!action)
     {return;}
-    let nextAct = action.getNextAction();
+    let nextAct = action.$getNextAction();
     while(nextAct)
     {
         let act = nextAct;
-        nextAct = act.getNextAction();
+        nextAct = act.$getNextAction();
         act.$invalid();
     }
     action.$invalid();
@@ -35,7 +35,7 @@ moduleObj.linkAction = function( target, nextAction )
     {
         throw new Error("Error, action 必须是HAction类或其子类");
     }
-    target.setNextAction(nextAction);
+    target.$setNextAction(nextAction);
 };
 
 moduleObj.parallelAction = function(target , actions)

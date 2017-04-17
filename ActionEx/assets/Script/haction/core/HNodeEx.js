@@ -8,7 +8,7 @@ let HActionComponent = require("HActionComponent");
 
 let NodePrototype = cc.Node.prototype;
 
-NodePrototype.$runAction = function ( HAction )
+NodePrototype.RunAction = function ( HAction )
 {
     let component = this.getComponent(HActionComponent);
     if (!component)
@@ -20,7 +20,7 @@ NodePrototype.$runAction = function ( HAction )
     component.addActionToTickQueue( HAction );
 };
 
-NodePrototype.$removeAction = function ( HAction )
+NodePrototype.RemoveAction = function ( HAction )
 {
     let component = this.getComponent(HActionComponent);
     if (component)
@@ -30,7 +30,7 @@ NodePrototype.$removeAction = function ( HAction )
 };
 
 
-NodePrototype.$removeAllActions = function () {
+NodePrototype.RemoveAllActions = function () {
     let component = this.getComponent(HActionComponent);
     if (component)
     {
@@ -38,7 +38,7 @@ NodePrototype.$removeAllActions = function () {
     }
 };
 
-NodePrototype.$pauseActions = function () {
+NodePrototype.PauseActions = function () {
     let component = this.getComponent(HActionComponent);
     if (component)
     {
@@ -46,14 +46,14 @@ NodePrototype.$pauseActions = function () {
     }
 };
 
-NodePrototype.$resumeActions = function () {
+NodePrototype.ResumeActions = function () {
     let component = this.getComponent(HActionComponent);
     if (component)
     {
         component.resume();
     }
 };
-NodePrototype.$getActionByTag = function ( tag )
+NodePrototype.GetActionByTag = function ( tag )
 {
     let component = this.getComponent(HActionComponent);
     if (component)

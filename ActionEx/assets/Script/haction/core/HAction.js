@@ -63,10 +63,10 @@ let HAction = cc.Class({
         return null;
     },
 
-    getNextAction :function () {
+    $getNextAction :function () {
         return this["__nextAction"];
     },
-    setNextAction:function (action, index /* null**/)
+    $setNextAction:function (action, index /* null**/)
     {
         let _i = 9999999;
         if ( typeof index === "number" && index > -1 )
@@ -193,7 +193,7 @@ let HAction = cc.Class({
             }
             if (this._finishCallback)
             {
-                this._finishCallback(this,this.getNextAction());
+                this._finishCallback(this,this.$getNextAction());
             }
             if (this._actionComponent)
             {
@@ -236,11 +236,11 @@ let HAction = cc.Class({
     clone :function ()
     {
         let target = this.cloneSelf();
-        let nextAct = this.getNextAction();
+        let nextAct = this.$getNextAction();
         while(nextAct)
         {
-            target.setNextAction( nextAct.cloneSelf() );
-            nextAct = nextAct.getNextAction();
+            target.$setNextAction( nextAct.cloneSelf() );
+            nextAct = nextAct.$getNextAction();
         }
         return target;
     },

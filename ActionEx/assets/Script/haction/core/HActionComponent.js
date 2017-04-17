@@ -65,7 +65,7 @@ module.exports = cc.Class({
             }else
             {
                 let preAction = _action;
-                let nextAction = _action.getNextAction();
+                let nextAction = _action.$getNextAction();
                 while(nextAction)
                 {
                     if (nextAction["$uuid"] === uuid )
@@ -74,7 +74,7 @@ module.exports = cc.Class({
                         return true;
                     }
                     preAction = nextAction;
-                    nextAction = nextAction.getNextAction();
+                    nextAction = nextAction.$getNextAction();
                 }
             }
         }
@@ -114,7 +114,7 @@ module.exports = cc.Class({
         {
             if (this.__hActions[i]["$uuid"] === hAction["$uuid"])
             {
-                let nexthAction = hAction.getNextAction();
+                let nexthAction = hAction.$getNextAction();
                 if (nexthAction)
                 {
                     // 启动单链表下个节点的Action

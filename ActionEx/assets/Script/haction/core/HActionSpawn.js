@@ -43,7 +43,7 @@ let HActionSpawn =  cc.Class({
             while (act)
             {
                 act.playAction();
-                act = act.getNextAction();
+                act = act.$getNextAction();
             }
         }
     },
@@ -67,7 +67,7 @@ let HActionSpawn =  cc.Class({
                     flag = false;
                     break;
                 }
-                act = act.getNextAction();
+                act = act.$getNextAction();
             }
         }
         if (flag)
