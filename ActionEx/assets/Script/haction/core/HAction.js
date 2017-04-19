@@ -92,7 +92,7 @@ let HAction = cc.Class({
         preAction["__nextAction"] = action;
         return action;
     },
-    removeNextAction:function () {
+    $removeNextAction:function () {
         utils.invalidActionAndNext( this["__nextAction"] );
         this["__nextAction"] = null;
     },

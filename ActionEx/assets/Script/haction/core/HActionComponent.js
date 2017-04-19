@@ -29,7 +29,6 @@ module.exports = cc.Class({
         this._tempInvalidIds = {};
         this._invalidActionList = [];
     },
-
     // use this for initialization
     onLoad: function ()
     {
@@ -59,7 +58,6 @@ module.exports = cc.Class({
             if (_action["$uuid"] === uuid)
             {
                 utils.invalidActionAndNext(_action);
-                // this.__hActions.splice(i,1);
                 this._tempInvalidIds[_action["$uuid"]] = 1;
                 return true;
             }else
@@ -70,7 +68,7 @@ module.exports = cc.Class({
                 {
                     if (nextAction["$uuid"] === uuid )
                     {
-                        preAction.removeNextAction();
+                        preAction.$removeNextAction();
                         return true;
                     }
                     preAction = nextAction;
@@ -163,7 +161,7 @@ module.exports = cc.Class({
 
     onDestroy:function ()
     {
-        this.__hActions.forEach(_destroyFunc);
+        this.removeAllActions();
         this.__hActions = null;
 
         this._invalidActionList.forEach(_destroyFunc);

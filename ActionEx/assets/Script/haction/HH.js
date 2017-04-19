@@ -30,7 +30,17 @@ let __checkParams = function ( params ) {
     return obj;
 };
 
-hh.calllFunc = function (func , params/* null */, vars/* null */)
+hh.callFuncWithParam = function (func , ...aArgs)
+{
+    let vars = {};
+    vars["onComplete"] = function()
+    {
+        func(...aArgs);
+    };
+    return HActionInstant.create(vars);
+};
+
+hh.callFunc = function (func , params/* null */, vars/* null */)
 {
     vars = vars || {};
     vars["onComplete"] = function()
