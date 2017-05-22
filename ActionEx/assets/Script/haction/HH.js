@@ -99,7 +99,7 @@ hh.tweenBy = function ( duration,params,vars )
             _vars[k] = params[k]
         }
     }
-    let tween = HActionTween.create(duration,_vars);
+    let tween = HActionTweenBy.create(duration,_vars);
     return tween;
 };
 

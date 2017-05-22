@@ -79,4 +79,27 @@ ease.easeInOut = function ( _rate) {
             return (1.0 - 0.5 * Math.pow(2 - time, rate));
         }
     }
-}
+};
+ease.sineEaseOut = function()
+{
+    return function (time)
+    {
+       return Math.sin(time * M_PI_X_2);
+    }
+};
+
+ease.sineEaseIn = function()
+{
+    return function (time)
+    {
+        return -1 * Math.cos(time * M_PI_X_2) + 1;
+    }
+};
+
+ease.cubicEaseOut = function( )
+{
+    return function (time){
+        time -= 1;
+        return (time * time * time + 1);
+    };
+};

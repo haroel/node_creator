@@ -30,7 +30,7 @@ let HActionTweenBase = cc.Class({
         let _node = this.getNode();
         for (var key in this._vars)
         {
-            if ( _node[key] )
+            if ( typeof _node[key] === "number" )
             {
                 let _o = typeof _node[key];
                 if ( _o === 'number')

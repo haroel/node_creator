@@ -15,6 +15,9 @@ let HActionInterval = cc.Class({
         this._progress = 0;
         this.easingFunc = null; // 缓动函数
     },
+    getCurrentTime:function () {
+        return this._currentTime;
+    },
     getDuration:function () {
         return this._totalTime;
     },

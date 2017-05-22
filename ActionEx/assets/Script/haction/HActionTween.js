@@ -18,6 +18,7 @@ let HActionTween = cc.Class({
         {
             let _o = pList[key];
             node[key] = _o + (vars[key] - _o) * progress;
+
         }
     },
     /* cloneSelf 不复制方法 */

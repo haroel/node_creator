@@ -31,7 +31,7 @@ let HAction = cc.Class({
     ctor:function () {
         this.$uuid = UUID_GENERATOR();
         this._delay = 0;
-        this._tag = 0;
+        this.tag = 0;
 
         this._state = STATE.INITIAL;
 
@@ -151,7 +151,7 @@ let HAction = cc.Class({
         let vars = this._vars;
         if ( vars && vars["onUpdate"] )
         {
-            vars["onUpdate"](this);
+            vars["onUpdate"](this, dt );
         }
     },
     $update:function(dt)

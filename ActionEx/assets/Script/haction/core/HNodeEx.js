@@ -10,6 +10,10 @@ let NodePrototype = cc.Node.prototype;
 
 NodePrototype.RunAction = function ( HAction )
 {
+    if (!this._components)
+    {
+        return;
+    }
     let component = this.getComponent(HActionComponent);
     if (!component)
     {
@@ -18,10 +22,15 @@ NodePrototype.RunAction = function ( HAction )
         component.__$init( this );
     }
     component.addActionToTickQueue( HAction );
+    return HAction;
 };
 
 NodePrototype.RemoveAction = function ( HAction )
 {
+    if (!this._components)
+    {
+        return;
+    }
     let component = this.getComponent(HActionComponent);
     if (component)
     {
@@ -31,6 +40,10 @@ NodePrototype.RemoveAction = function ( HAction )
 
 
 NodePrototype.RemoveAllActions = function () {
+    if (!this._components)
+    {
+        return;
+    }
     let component = this.getComponent(HActionComponent);
     if (component)
     {
@@ -39,6 +52,10 @@ NodePrototype.RemoveAllActions = function () {
 };
 
 NodePrototype.PauseActions = function () {
+    if (!this._components)
+    {
+        return;
+    }
     let component = this.getComponent(HActionComponent);
     if (component)
     {
@@ -47,6 +64,10 @@ NodePrototype.PauseActions = function () {
 };
 
 NodePrototype.ResumeActions = function () {
+    if (!this._components)
+    {
+        return;
+    }
     let component = this.getComponent(HActionComponent);
     if (component)
     {
@@ -55,6 +76,10 @@ NodePrototype.ResumeActions = function () {
 };
 NodePrototype.GetActionByTag = function ( tag )
 {
+    if (!this._components)
+    {
+        return null;
+    }
     let component = this.getComponent(HActionComponent);
     if (component)
     {
